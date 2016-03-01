@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simulación Estadística</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Simulación Estadística">
+  <meta name="author" content="Kevin Pérez - Ing de Sistemas - Estadístico - (E) Maestría en Ciencia de Datos">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="libraries/widgets/bootstrap/css/bootstrap.css"></link>
+<link rel=stylesheet href="libraries/widgets/quiz/css/demo.css"></link>
+<link rel=stylesheet href="libraries/widgets/interactive/css/aceeditor.css"></link>
+<link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <aside class="gdbar">
+    <img src="assets/img/unicordoba3.png">
+  </aside>
+  <hgroup class="auto-fadein">
+    <h1>Simulación Estadística</h1>
+    <h2>Contenido del curso</h2>
+    <p>Kevin Pérez - Ing de Sistemas - Estadístico - (E) Maestría en Ciencia de Datos<br/>Departamento de Matemáticas y Estadística - Universidad de Córdoba</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Contenido</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul class = "build incremental">
+<li><em><strong>Capítulo I - Programación</strong></em> 
+
+<ul>
+<li>Programación básica en R</li>
+<li>Programación con Funciones </li>
+<li>Otras técnicas de programación </li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Contenido</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul class = "build incremental">
+<li><em><strong>Capítulo II - Técnicas Numericas</strong></em> 
+
+<ul>
+<li>Números aleatorios </li>
+<li>Generación de variables aleatorias </li>
+<li>Integración numerica<br></li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Contenido</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul class = "build incremental">
+<li><em><strong>Capítulo III - Técnicas de simulación</strong></em>
+
+<ul>
+<li>Metodo de Monte-carlo </li>
+<li>Reducción de varianza </li>
+<li>Bootstrap</li>
+<li>Procesos estocasticos </li>
+<li>Otras técnicas de simulación </li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Motivación</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Imagine que ha cargado un archivo de datos, como el que mostramos abajo, que usa <code>-99</code> para representar datos faltantes. Usted quiere reemplazar todos los <code>-99</code> con <code>Nas</code></p>
+
+<pre><code class="r">set.seed(1014)
+df &lt;- data.frame(replicate(6, sample(c(1:10, -99), 6, rep = TRUE)))
+names(df) &lt;- letters[1:6]
+head(df, 3)
+</code></pre>
+
+<pre><code>##    a b c   d   e f
+## 1  1 6 1   5 -99 1
+## 2 10 4 4 -99   9 3
+## 3  7 9 5   4   1 4
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Motivación</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Cuando estas empezando a escribir código R, quizás pienses en resolver el problema con un <em>&#39;copy-paste&#39;</em></p>
+
+<pre><code class="r">df$a[df$a == -99] &lt;- NA
+df$b[df$b == -99] &lt;- NA
+df$c[df$c == -98] &lt;- NA
+df$d[df$d == -99] &lt;- NA
+df$e[df$e == -99] &lt;- NA
+df$f[df$g == -99] &lt;- NA
+</code></pre>
+
+<p>Un problema con el <em>&#39;copy-paste&#39;</em> es que es fácil cometer errores con el, Puedes ver los dos en el código?, Estos errores son inconsistencias que surgen debido a que no tienen una descripción clara de la acción deseada (reemplazar - 99 con NA ).</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Motivación</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Cuando empiezas a conocer mejor las buenas practicas de programación, programas una función que arregla los valores perdidos en un vector </p>
+
+<pre><code class="r">fix_missing &lt;- function(x) {
+  x[x == -99] &lt;- NA
+  x
+}
+df$a &lt;- fix_missing(df$a)
+df$b &lt;- fix_missing(df$b)
+df$c &lt;- fix_missing(df$c)
+df$d &lt;- fix_missing(df$d)
+df$e &lt;- fix_missing(df$e)
+df$f &lt;- fix_missing(df$e)
+</code></pre>
+
+<p>Esto reduce el alcance de los posibles errores , pero no los elimina : puede escribir -98 en lugar de -99.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Motivación</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Podemos aplicar <code>lappy</code> a este problema por que los <code>data.frame</code> son listas </p>
+
+<pre><code class="r">fix_missing &lt;- function(x) {
+  x[x == -99] &lt;- NA
+  x
+}
+df[] &lt;- lapply(df, fix_missing)
+</code></pre>
+
+<p>Este código tiene las siguientes ventajas sobre el <em>&#39;copy-paste&#39;</em> </p>
+
+<ul>
+<li>Es más compacto </li>
+<li>Si el código para un valor perdido cambia, solo necesita ser actualizado en una parte </li>
+<li>Funciona para cualquier número de columnas, no existe forma de de accidentalmente perder omitir una columna </li>
+<li>No existe forma de accidentalmente tratar una columna diferente de otra </li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>Motivación</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Es fácil generalizar esta técnica para un subconjunto de columnas </li>
+</ul>
+
+<pre><code class="r">df[1:5] &lt;- lapply(df[1:5], fix_missing)
+</code></pre>
+
+<p>La idea clave es la composición de funciones. Tomar dos funciones simples, una que hace algo para cada columna y una que fija los valores que faltan, y se combinan para fijar los valores faltantes cada columna. La escritura de funciones simples que se pueden entender de forma aislada y lo que hace a la composición una técnica poderosa.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>Motivación</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>¿Qué pasa si diferentes columnas utilizan códigos diferentes para los datos faltan ten? Usted puede verse tentado al <em>&#39;copy-paste&#39;</em>: </p>
+
+<pre><code class="r">fix_missing_99 &lt;- function(x) {
+  x[x == -99] &lt;- NA
+  x
+}
+fix_missing_999 &lt;- function(x) {
+  x[x == -999] &lt;- NA
+  x
+}
+fix_missing_9999 &lt;- function(x) {
+  x[x == -999] &lt;- NA
+  x
+}
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>Motivación</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Al igual que antes, es fácil para crear errores. En este caso, se podría argumentar que deberíamos añadir otro argumento:</p>
+
+<pre><code class="r">fix_missing &lt;- function(x, na.value) {
+  x[x == na.value] &lt;- NA
+  x
+}
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>Algo anda mal!</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Indicadores de que algo anda mal!</p>
+
+<ul>
+<li><code>message</code>: Una notificación genérica producida por la función  <code>message</code>; la ejecución de la función continua</li>
+<li><code>warning</code>: Un indicador de que algo anda mal pero no necesariamente fatal; la ejecución de la función continua; es generado por la función <code>warning</code>.</li>
+<li><code>error</code>: Indicador de que un problema fatal a ocurrido; la ejecución se detiene; es producida por la función <code>stop</code>.</li>
+<li><code>condition</code>: Un concepto genérico de que algo inesperado a ocurrido; los programadores pueden crear sus condiciones. </li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>Algo anda mal!</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Warning</p>
+
+<pre><code class="r">log(-1)
+</code></pre>
+
+<pre><code>## Warning in log(-1): Se han producido NaNs
+</code></pre>
+
+<pre><code>## [1] NaN
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>Algo anda mal</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">printmessage &lt;- function(x) {
+        if(x &gt; 0)
+                print(&quot;x is greater than zero&quot;)
+        else
+                print(&quot;x is less than or equal to zero&quot;)
+        invisible(x)
+}
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-14" style="background:;">
+  <hgroup>
+    <h2>Algo anda mal</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">printmessage &lt;- function(x) {
+          if(x &gt; 0)
+                print(&quot;x is greater than zero&quot;)
+          else
+                print(&quot;x is less than or equal to zero&quot;)
+          invisible(x)
+}
+printmessage(1)
+</code></pre>
+
+<pre><code>## [1] &quot;x is greater than zero&quot;
+</code></pre>
+
+<pre><code class="r">printmessage(NA)
+</code></pre>
+
+<pre><code>## Error in if (x &gt; 0) print(&quot;x is greater than zero&quot;) else print(&quot;x is less than or equal to zero&quot;): valor ausente donde TRUE/FALSE es necesario
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-15" style="background:;">
+  <hgroup>
+    <h2>Algo anda mal!</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">printmessage2 &lt;- function(x) {
+        if(is.na(x))
+                print(&quot;x is a missing value!&quot;)
+        else if(x &gt; 0)
+                print(&quot;x is greater than zero&quot;)
+        else
+                print(&quot;x is less than or equal to zero&quot;)
+        invisible(x)
+}
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-16" style="background:;">
+  <hgroup>
+    <h2>Algo anda mal!</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">printmessage2 &lt;- function(x) {
+        if(is.na(x))
+                print(&quot;x is a missing value!&quot;)
+        else if(x &gt; 0)
+                print(&quot;x is greater than zero&quot;)
+        else
+                print(&quot;x is less than or equal to zero&quot;)
+        invisible(x)
+}
+x &lt;- log(-1)
+</code></pre>
+
+<pre><code>## Warning in log(-1): Se han producido NaNs
+</code></pre>
+
+<pre><code class="r">printmessage2(x)
+</code></pre>
+
+<pre><code>## [1] &quot;x is a missing value!&quot;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-17" style="background:;">
+  <hgroup>
+    <h2>Herramientas de depuración R</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Las principales herramientas de depuración en R son:</p>
+
+<ul>
+<li><code>traceback</code>: Imprime un pantallazo de las llamadas de la función una vez ocurre un error.</li>
+<li><code>debug</code>: Marca una función para el modo “debug” que le permite el ver el paso a través de una ejecución de una función una línea  a la vez</li>
+<li><code>browser</code>: Suspende la ejecución de una función mientras es puesta en modo debug</li>
+<li><code>trace</code>: e permite introducir el código de depuración en una función a lugares específicos </li>
+<li><code>recover</code>: Le permite modificar el comportamiento de error para que pueda navegar por las de llamadas de función</li>
+</ul>
+
+<p>Estas son herramientas interactivas diseñadas específicamente para permitirle escoger a través de una función. También existe la técnica más contundente de la inserción de declaraciones de impresión en la función.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-18" style="background:;">
+  <hgroup>
+    <h2>traceback</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">&gt; mean(x)
+Error in mean(x) : object &#39;x&#39; not found
+&gt; traceback()
+1: mean(x)
+&gt; 
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-19" style="background:;">
+  <hgroup>
+    <h2>traceback</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">&gt; lm(y ~ x)
+Error in eval(expr, envir, enclos) : object ’y’ not found
+&gt; traceback()
+7: eval(expr, envir, enclos)
+6: eval(predvars, data, env)
+5: model.frame.default(formula = y ~ x, drop.unused.levels = TRUE)
+4: model.frame(formula = y ~ x, drop.unused.levels = TRUE)
+3: eval(expr, envir, enclos)
+2: eval(mf, parent.frame())
+1: lm(y ~ x)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-20" style="background:;">
+  <hgroup>
+    <h2>debug</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">&gt; debug(lm)
+&gt; lm(y ~ x)
+debugging in: lm(y ~ x)
+debug: {
+    ret.x &lt;- x
+    ret.y &lt;- y
+    cl &lt;- match.call()
+    ...
+    if (!qr)
+        z$qr &lt;- NULL 
+    z
+} 
+Browse[2]&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-21" style="background:;">
+  <hgroup>
+    <h2>debug</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">Browse[2]&gt; n
+debug: ret.x &lt;- x
+Browse[2]&gt; n
+debug: ret.y &lt;- y
+Browse[2]&gt; n
+debug: cl &lt;- match.call()
+Browse[2]&gt; n
+debug: mf &lt;- match.call(expand.dots = FALSE)
+Browse[2]&gt; n
+debug: m &lt;- match(c(&quot;formula&quot;, &quot;data&quot;, &quot;subset&quot;, &quot;weights&quot;, &quot;na.action&quot;,
+    &quot;offset&quot;), names(mf), 0L)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-22" style="background:;">
+  <hgroup>
+    <h2>recover</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">&gt; options(error = recover)
+&gt; read.csv(&quot;nosuchfile&quot;)
+Error in file(file, &quot;rt&quot;) : cannot open the connection
+In addition: Warning message:
+In file(file, &quot;rt&quot;) :
+  cannot open file ’nosuchfile’: No such file or directory
+
+Enter a frame number, or 0 to exit
+
+1: read.csv(&quot;nosuchfile&quot;)
+2: read.table(file = file, header = header, sep = sep, quote = quote, dec =
+3: file(file, &quot;rt&quot;)
+
+Selection:
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-23" style="background:;">
+  <hgroup>
+    <h2>Standar de código para R</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>Siempre utilice archivos de text / editores de texto</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-24" style="background:;">
+  <hgroup>
+    <h2>Standar de código para R</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li><p>Siempre utilice archivos de text / editores de texto</p></li>
+<li><p>Indente su código</p></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-25" style="background:;">
+  <hgroup>
+    <h2>Standar de código para R</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li><p>Siempre utilice archivos de text / editores de texto</p></li>
+<li><p>Indente su código</p></li>
+<li><p>Limite el ancho se su código (80 columnas?)</p></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-26" style="background:;">
+  <hgroup>
+    <h2>Indentado</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><p>Indentado mejora la lectura del código</p></li>
+<li><p>El ajuste del ancho de la columna previene el anidado y la funciones muy largas</p></li>
+<li><p>Sugerencia: Indente mínimo 4 espacios; 8 espacios es lo ideal</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-27" style="background:;">
+  <hgroup>
+    <h2>Standar de código para R</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li><p>Siempre utilice archivos de text / editores de texto</p></li>
+<li><p>Indente su código</p></li>
+<li><p>Limite el ancho se su código (80 columnas?)</p></li>
+<li><p>Limite el tamaño de sus funciones individuales</p></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-28" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Clousures</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Otro tema importante tema en programación es la creación de <em>Clouseres</em>, que son funciones escritas por funciones. <em>Clousures</em> reciben su nombre debido a que <em><strong>encierra</strong></em> el entorno de la función padre y puede acceder a todas sus variables. Esto es útil porque nos permite tener dos niveles de parámetros: un nivel de la padre que controla el funcionamiento y un nivel hijo que hace el trabajo.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-29" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Clousures</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>En el siguiente ejemplo se utiliza esta idea para generar una familia de funciones de potencia en el que una función padre (power() ) crea dos funciones secundarias square() and cube()).</p>
+
+<pre><code class="r">power &lt;- function(exponent) {
+  function(x) {
+    x ^ exponent
+  }
+}
+square &lt;- power(2)
+cube &lt;- power(3)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-30" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Clousures</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">square(4)
+</code></pre>
+
+<pre><code>## [1] 16
+</code></pre>
+
+<pre><code class="r">cube(4)
+</code></pre>
+
+<pre><code>## [1] 64
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-31" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Clousures</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Cuando imprimes un <em>Clousure</em> no se ve nada terriblemente útil </p>
+
+<pre><code class="r">square
+</code></pre>
+
+<pre><code>## function(x) {
+##     x ^ exponent
+##   }
+## &lt;environment: 0x7fbaa3017cd0&gt;
+</code></pre>
+
+<pre><code class="r">cube
+</code></pre>
+
+<pre><code>## function(x) {
+##     x ^ exponent
+##   }
+## &lt;environment: 0x7fbaa301a6e8&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-32" style="background:;">
+  <hgroup>
+    <h2>Progrmación funcional - Clousures</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Esto se debe a que la función en sí no cambia. La diferencia es el entorno envolvente , el entorno(square). Una forma de ver el contenido del entorno es convertirlo en una lista :</p>
+
+<pre><code class="r">as.list(environment(square))
+</code></pre>
+
+<pre><code>## $exponent
+## [1] 2
+</code></pre>
+
+<pre><code class="r">as.list(environment(cube))
+</code></pre>
+
+<pre><code>## $exponent
+## [1] 3
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-33" style="background:;">
+  <hgroup>
+    <h2>Progrmación funcional - Clousures</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Otra forma de ver que esta sucediendo es mediante el uso de la función <code>pryr::unenclose()</code> Esta función sustituye las variables definidas en el medio ambiente que envuelve con sus valores:</p>
+
+<pre><code class="r">library(pryr)
+unenclose(square)
+</code></pre>
+
+<pre><code>## function (x) 
+## {
+##     x^2
+## }
+## &lt;environment: 0x7fd23440ed18&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-34" style="background:;">
+  <hgroup>
+    <h2>Progrmación funcional - Clousures</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>El entorno padre de un cierre es el entorno de ejecución de la función que lo creó, como se muestra por este código:</p>
+
+<pre><code class="r">power &lt;- function(exponent) {
+  print(environment())
+  function(x) x ^ exponent
+}
+zero &lt;- power(0)
+</code></pre>
+
+<pre><code>## &lt;environment: 0x7fd23402cbc0&gt;
+</code></pre>
+
+<pre><code class="r">environment(zero)
+</code></pre>
+
+<pre><code>## &lt;environment: 0x7fd23402cbc0&gt;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-35" style="background:;">
+  <hgroup>
+    <h2>Progrmación funcional - Clousures</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>El entorno de ejecución normalmente desaparece después de que la función devuelve un valor. Sin embargo, las funciones capturan sus entornos de cierre. Esto significa que cuando la función <em><strong>a</strong></em> retorna una función <em><strong>b</strong></em>, la función <em><strong>b</strong></em> captura y almacena el entorno de ejecución de la función <em><strong>a</strong></em>, y este no desaparece. (Esto tiene consecuencias importantes para el uso de la memoria.)</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-36" style="background:;">
+  <hgroup>
+    <h2>Progrmación funcional - Mutable state</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Tener las variables en dos niveles le permite mantener el estado entre llamados de funciones. Esto es posible porque, mientras que el entorno de ejecución se actualiza cada vez, el entorno envolvente es constante. La clave para manejar las variables en diferentes niveles es el operador de asignación doble flecha (&lt;&lt;-). A diferencia de la asignación habitual (&lt;-) en la que siempre se asigna en el entorno actual, el operador doble flecha doble sigue mirando hacia arriba en la cadena de entornos de los padres hasta que encuentra un nombre coincidente.</p>
+
+<p>En conjunto, un entorno estático padre y (&lt;&lt;-) hacen posible mantener el estado a través de llamadas a funciones. El siguiente ejemplo muestra un contador que registra el número de veces que la función se ha llamado. Cada vez que <code>new_counter</code> se ejecuta, crea un entorno, inicializa el contador <code>i</code> en este ambiente, y luego crea una nueva función. </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-37" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Mutable state</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">new_counter &lt;- function() {
+  i &lt;- 0
+  function() {
+    i &lt;&lt;- i + 1
+    i
+  }
+}
+</code></pre>
+
+<p>La nueva función es un cierre y su entorno de cerramiento es el entorno creado cuando se ejecuta <code>new_counter()</code>. Ordinariamente, los entornos de ejecución de la función son temporales, pero un cierre mantiene acceso al entorno en el que se creó. En el siguiente ejemplo, Los cierres <code>counter_one()</code> y <code>counter_two()</code> cada obtienen sus propios entornos de cierre cuando se ejecuta, por lo que pueden mantener diferentes conteos.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-38" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Mutable state</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">counter_one &lt;- new_counter()
+counter_two &lt;- new_counter()
+
+counter_one()
+</code></pre>
+
+<pre><code>## [1] 1
+</code></pre>
+
+<pre><code class="r">counter_one()
+</code></pre>
+
+<pre><code>## [1] 2
+</code></pre>
+
+<pre><code class="r">counter_two()
+</code></pre>
+
+<pre><code>## [1] 1
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-39" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Mutable state</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>¿Qué pasa si no se utiliza un cierre? ¿Qué ocurre si se utiliza &lt;- en lugar de &lt;&lt; -? Haga predicciones sobre lo que sucederá si se reemplaza <code>new_counter()</code> con las variantes mencionadas, luego ejecute el código y compruebe sus predicciones.</p>
+
+<pre><code class="r">i &lt;- 0
+new_counter2 &lt;- function() {
+  i &lt;&lt;- i + 1
+  i
+}
+new_counter3 &lt;- function() {
+  i &lt;- 0
+  function() {
+    i &lt;- i + 1
+    i
+  }
+}
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-40" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>En R, las funciones se pueden almacenar en listas. Esto hace que sea más fácil trabajar con grupos de funciones relacionadas, de la misma forma que un <code>data.frame</code> hace que sea más fácil trabajar con grupos de vectores relacionados.</p>
+
+<p>Vamos a empezar con un ejemplo sencillo de evaluación comparativa. Imagínese que usted está comparando el desempeño de múltiples formas de calcular la media aritmética. Usted puede hacer esto mediante el almacenamiento de cada método (función) en una lista:</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-41" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">compute_mean &lt;- list(
+
+  base = function(x) mean(x),
+  sum = function(x) sum(x) / length(x),
+  manual = function(x) {
+    total &lt;- 0
+    n &lt;- length(x)
+    for (i in seq_along(x)) {
+      total &lt;- total + x[i] / n
+    }
+    total
+  }
+)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-42" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Llamar a una función de una lista es sencillo. Se extraen y luego se llaman:</p>
+
+<pre><code class="r">set.seed(12345)
+x &lt;- runif(1e5)
+system.time(compute_mean$base(x))
+</code></pre>
+
+<pre><code>##    user  system elapsed 
+##   0.004   0.000   0.005
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-43" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">system.time(compute_mean[[2]](x))
+</code></pre>
+
+<pre><code>##    user  system elapsed 
+##       0       0       0
+</code></pre>
+
+<pre><code class="r">system.time(compute_mean[[&quot;manual&quot;]](x))
+</code></pre>
+
+<pre><code>##    user  system elapsed 
+##   0.085   0.005   0.091
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-44" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Para llamar a cada función (por ejemplo, para comprobar que todas ellas devuelven el mismo resultado) utilizamos <code>lappy</code>. Vamos a necesitar ya sea una función anónima o una nueva función nombrada, ya que no hay una función incorporada para manejar esta situación. </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-45" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">lapply(compute_mean, function(f) f(x))
+</code></pre>
+
+<pre><code>## $base
+## [1] 0.5005245
+## 
+## $sum
+## [1] 0.5005245
+## 
+## $manual
+## [1] 0.5005245
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-46" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">call_fun &lt;- function(f, ...) f(...)
+lapply(compute_mean, call_fun, x)
+</code></pre>
+
+<pre><code>## $base
+## [1] 0.5005245
+## 
+## $sum
+## [1] 0.5005245
+## 
+## $manual
+## [1] 0.5005245
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-47" style="background:;">
+  <hgroup>
+    <h2>Progrmación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>El tiempo para cada función, para eso podemos combinar <code>lapply()</code> y <code>system.time ()</code>:</p>
+
+<pre><code class="r">lapply(compute_mean, function(f) system.time(f(x)))
+</code></pre>
+
+<pre><code>## $base
+##    user  system elapsed 
+##   0.005   0.001   0.006 
+## 
+## $sum
+##    user  system elapsed 
+##       0       0       0 
+## 
+## $manual
+##    user  system elapsed 
+##   0.072   0.003   0.076
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-48" style="background:;">
+  <hgroup>
+    <h2>Progrmación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Otro uso de listas de funciones es resumir un objeto de múltiples maneras. Para hacer eso, podríamos almacenar cada función de resumen en una lista y a continuación correrlas todas ellas con un <code>lappy</code> </p>
+
+<pre><code class="r">x &lt;- 1:10
+funs &lt;- list(
+  sum = sum,
+  mean = mean,
+  median = median
+)
+lapply(funs, function(f) f(x))
+</code></pre>
+
+<pre><code>## $sum
+## [1] 55
+## 
+## $mean
+## [1] 5.5
+## 
+## $median
+## [1] 5.5
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-49" style="background:;">
+  <hgroup>
+    <h2>Progrmación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Que pasaría si quisiéramos que  nuestras funciones de resumen eliminaran automáticamente los valores faltantes?. Un enfoque sería hacer una lista de funciones anónimas que llaman a funciones de resumen con los argumentos adecuados:</p>
+
+<pre><code class="r">funs2 &lt;- list(
+  sum = function(x, ...) sum(x, ..., na.rm = TRUE),
+  mean = function(x, ...) mean(x, ..., na.rm = TRUE),
+  median = function(x, ...) median(x, ..., na.rm = TRUE)
+)
+lapply(funs2, function(f) f(x))
+</code></pre>
+
+<pre><code>## $sum
+## [1] 55
+## 
+## $mean
+## [1] 5.5
+## 
+## $median
+## [1] 5.5
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-50" style="background:;">
+  <hgroup>
+    <h2>Programación funcional - Listas de funciones</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Esto, sin embargo, conduce a una gran cantidad de duplicación. Aparte de un nombre de función diferente, cada función es casi idéntica. Un mejor enfoque sería modificar nuestra <code>lapply()</code> para incluir un argumento adicional:</p>
+
+<pre><code class="r">lapply(funs, function(f) f(x, na.rm = TRUE))
+</code></pre>
+
+<pre><code>## $sum
+## [1] 55
+## 
+## $mean
+## [1] 5.5
+## 
+## $median
+## [1] 5.5
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Contenido'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Contenido'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Contenido'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Motivación'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Motivación'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Motivación'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Motivación'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='Motivación'>
+         8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='Motivación'>
+         9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='Motivación'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='Algo anda mal!'>
+         11
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='Algo anda mal!'>
+         12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='Algo anda mal'>
+         13
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=14 title='Algo anda mal'>
+         14
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=15 title='Algo anda mal!'>
+         15
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=16 title='Algo anda mal!'>
+         16
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=17 title='Herramientas de depuración R'>
+         17
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=18 title='traceback'>
+         18
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=19 title='traceback'>
+         19
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=20 title='debug'>
+         20
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=21 title='debug'>
+         21
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=22 title='recover'>
+         22
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=23 title='Standar de código para R'>
+         23
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=24 title='Standar de código para R'>
+         24
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=25 title='Standar de código para R'>
+         25
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=26 title='Indentado'>
+         26
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=27 title='Standar de código para R'>
+         27
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=28 title='Programación funcional - Clousures'>
+         28
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=29 title='Programación funcional - Clousures'>
+         29
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=30 title='Programación funcional - Clousures'>
+         30
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=31 title='Programación funcional - Clousures'>
+         31
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=32 title='Progrmación funcional - Clousures'>
+         32
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=33 title='Progrmación funcional - Clousures'>
+         33
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=34 title='Progrmación funcional - Clousures'>
+         34
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=35 title='Progrmación funcional - Clousures'>
+         35
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=36 title='Progrmación funcional - Mutable state'>
+         36
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=37 title='Programación funcional - Mutable state'>
+         37
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=38 title='Programación funcional - Mutable state'>
+         38
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=39 title='Programación funcional - Mutable state'>
+         39
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=40 title='Programación funcional - Listas de funciones'>
+         40
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=41 title='Programación funcional - Listas de funciones'>
+         41
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=42 title='Programación funcional - Listas de funciones'>
+         42
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=43 title='Programación funcional - Listas de funciones'>
+         43
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=44 title='Programación funcional - Listas de funciones'>
+         44
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=45 title='Programación funcional - Listas de funciones'>
+         45
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=46 title='Programación funcional - Listas de funciones'>
+         46
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=47 title='Progrmación funcional - Listas de funciones'>
+         47
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=48 title='Progrmación funcional - Listas de funciones'>
+         48
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=49 title='Progrmación funcional - Listas de funciones'>
+         49
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=50 title='Programación funcional - Listas de funciones'>
+         50
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  <script src="libraries/widgets/bootstrap/js/bootstrap.min.js"></script>
+<script src="libraries/widgets/bootstrap/js/bootbox.min.js"></script>
+<script src="libraries/widgets/quiz/js/jquery.quiz.js"></script>
+<script src="libraries/widgets/quiz/js/mustache.min.js"></script>
+<script src="libraries/widgets/quiz/js/quiz-app.js"></script>
+<script src="libraries/widgets/interactive/js/ace/js/ace.js"></script>
+<script src="libraries/widgets/interactive/js/opencpu-0.5.js"></script>
+<script src="libraries/widgets/interactive/js/interactive.js"></script>
+
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<script>  
+  $(function (){ 
+    $("#example").popover(); 
+    $("[rel='tooltip']").tooltip(); 
+  });  
+  </script>  
+  
+  <script src="shared/shiny.js" type="text/javascript"></script>
+  <script src="shared/slider/js/jquery.slider.min.js"></script>
+  <script src="shared/bootstrap/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="shared/slider/css/jquery.slider.min.css"></link>
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
