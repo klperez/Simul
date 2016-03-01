@@ -657,3 +657,8 @@ Esto, sin embargo, conduce a una gran cantidad de duplicación. Aparte de un nom
 lapply(funs, function(f) f(x, na.rm = TRUE))
 ```
 
+---
+
+## Programación orientada a objetos 
+
+Aquí va el nuevo tema 
